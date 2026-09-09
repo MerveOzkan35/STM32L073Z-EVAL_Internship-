@@ -97,12 +97,13 @@ ASCII string command `eeprom\r\n` requests raw historical CSV rows formatted as:
 
 Install dependencies:
 
-Bash
+``` Bash
 pip install -r requirements.txt
+```
 
 Launch the terminal:
 
-Bash
+``` Bash
 python main.py
-
+```
 
