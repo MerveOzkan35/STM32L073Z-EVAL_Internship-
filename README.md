@@ -56,3 +56,53 @@ Ensure the compiler knows where to resolve the header (`.h`) declarations. Add t
 ../Drivers/BSP/Components/hx8347d
 ../Drivers/BSP/Components/mfxstm32l152
 ../Drivers/BSP/STM32L073Z_EVAL
+```
+## PyQt Industrial HMI Terminal
+
+A custom desktop telemetry panel built with PyQt5 and PyQtGraph for real-time sensor monitoring, dynamic threshold configuration, hardware LED status tracking, and EEPROM history export.
+
+### Features
+* **Live Telemetry & Graphing:** Real-time plotting of STLM75 I2C temperature and ADC pressure data at 115200 baud.
+* **Bi-directional Threshold Control:** Dynamic calibration of temperature and pressure limits synchronized with the STM32 firmware.
+* **Watchdog Supervision:** UI connection timeout detection (turns off indicator LEDs if packet stream halts).
+* **EEPROM Memory Dump & Export:** Retrieves non-volatile ring-buffer logs from the microcontroller and exports them to structured CSV files.
+
+---
+
+### UART Communication Protocol
+
+The application communicates with the STM32 microcontroller using a structured framed binary protocol and standard ASCII commands:
+
+#### 1. Inbound Telemetry Packet (STM32 $\rightarrow$ Host)
+Fixed-length 13-byte frame emitted periodically:
+* **Header:** `0xAA 0x55` (2 bytes)
+* **Command ID:** `0x01` (Telemetry, 1 byte)
+* **Temperature:** `pkt[3] + (pkt[4] / 10.0)` (°C)
+* **Pressure:** 32-bit big-endian unsigned integer scaled by 100.0 (`(pkt[5]<<24 | pkt[6]<<16 | pkt[7]<<8 | pkt[8]) / 100.0` hPa)
+* **Active Thresholds:** Scaled temperature (`pkt[9] / 2.0`) and pressure offset (`pkt[10] + 900.0`)
+* **Emergency Status:** `pkt[11]` (`0x01`: Emergency Active, `0x00`: Normal)
+* **Footer:** `0x0D` (`\r` delimiter for frame validation)
+
+#### 2. Outbound Threshold Command (Host $\rightarrow$ STM32)
+6-byte binary payload:
+`[ 0xAA, 0x55, 0x04, Temp_Max_Scaled, Press_Max_Offset, 0x0D ]`
+
+#### 3. Log Dump Command
+ASCII string command `eeprom\r\n` requests raw historical CSV rows formatted as:  
+`ID, Timestamp (RTC), Temperature (°C), Pressure (hPa)`
+
+---
+
+### Installation & Quick Start
+
+Install dependencies:
+
+Bash
+pip install -r requirements.txt
+
+Launch the terminal:
+
+Bash
+python main.py
+
+
