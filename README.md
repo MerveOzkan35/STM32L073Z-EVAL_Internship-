@@ -28,3 +28,31 @@ An environmental monitoring and data logging system designed for cold food and p
 * **DMA-Driven Telemetry:** Utilized UART with Direct Memory Access (DMA) circular buffering to stream sensor telemetry without CPU overhead.
 * **Non-Volatile Storage:** Implemented structured EEPROM memory addressing for cyclic sensor event logs.
 * **Low-Power Efficiency:** Leveraged ARM Cortex-M0+ architecture features for low-power cold-chain monitoring.
+
+## Project Setup & Build Configuration
+
+To compile and link the firmware within STM32CubeIDE, the Board Support Packages (BSP) and custom font definitions must be present, and their header search paths must be configured in the compiler settings.
+
+### 1. Required Source & Driver Files
+The following external and BSP directories from the STMicroelectronics STM32CubeL0 MCU Package must be included in your project hierarchy:
+
+* **BSP Components:**
+  * `Drivers/BSP/Components/Common/`
+  * `Drivers/BSP/Components/hx8347d/` (LCD Controller Driver)
+  * `Drivers/BSP/Components/mfxstm32l152/` (IO Expander)
+  * `Drivers/BSP/STM32L073Z_EVAL/` (Board-specific drivers)
+* **Custom Font Tables:**
+  * `myUtilities/Fonts/` (Font lookup definitions utilized by the TFT display driver)
+
+> **Note:** If generating a clean workspace via STM32CubeMX, copy the required BSP component drivers and the `myUtilities/Fonts/` directory into your project structure before building.
+
+### 2. Include Paths (STM32CubeIDE)
+Ensure the compiler knows where to resolve the header (`.h`) declarations. Add the following paths under:  
+**Project Properties** $\rightarrow$ **C/C++ Build** $\rightarrow$ **Settings** $\rightarrow$ **Tool Settings** $\rightarrow$ **MCU GCC Compiler** $\rightarrow$ **Include paths**:
+
+```text
+../myUtilities/Fonts
+../Drivers/BSP/Components/Common
+../Drivers/BSP/Components/hx8347d
+../Drivers/BSP/Components/mfxstm32l152
+../Drivers/BSP/STM32L073Z_EVAL
